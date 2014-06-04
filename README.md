@@ -8,6 +8,12 @@ If your hosting provider requires all requests to send emails to authenticate wi
 * Signup for recaptcha public and private keys https://www.google.com/recaptcha/
 * Alter the configurable options inside *inc/mailer.php*
 
+Note - if the *inc/* directory or *contact.php* script are not placed directly in the website root directory the require_once statements will need updating in the following files:
+
+* contact.php
+* inc/mailer.php
+
+
 ## Security Considerations
 It would be advisable to review this code and the impact it could have before using it. We will NOT be held responsable for any negative effects deploying this code to your website may have.
 
