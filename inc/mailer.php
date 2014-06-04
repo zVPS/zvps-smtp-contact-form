@@ -1,5 +1,8 @@
 <?php
 
+/** puts the Zend library on the current include path */
+set_include_path(get_include_path() . PATH_SEPARATOR . dirname(__FILE__));
+
 require_once 'Zend/Mail.php';
 require_once 'Zend/Mail/Transport/Smtp.php';
 require_once 'Zend/Service/ReCaptcha.php';
