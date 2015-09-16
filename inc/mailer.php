@@ -28,6 +28,7 @@ class mailer
     private $emailConfigPass = 'email-account-password';
     private $emailConfigHost = 'localhost';
     private $emailConfigPort = 25;
+    private $emailConfigSsl  = false;
     
     private $emailTo = 'to@domain.com';
     private $emailToName = 'our support team';
@@ -36,7 +37,6 @@ class mailer
     private $emailBody = null;
     private $emailReplyTo = null;
     
-    
     private $smtpMail;
     private $smtpTransport;
     
@@ -44,6 +44,7 @@ class mailer
     const CONFIG_USER = 'username';
     const CONFIG_PASS = 'password';
     const CONFIG_PORT = 'port';
+    const CONFIG_SSL  = 'ssl';
     
     public function __construct()
     {
@@ -52,6 +53,7 @@ class mailer
             self::CONFIG_USER => $this->emailConfigUser,
             self::CONFIG_PASS => $this->emailConfigPass,
             self::CONFIG_PORT => $this->emailConfigPort,
+            self::CONFIG_SSL  => $this->emailConfigSsl,
         );
         
         $this->smtpTransport = new Zend_Mail_Transport_Smtp($this->emailConfigHost, $config);
