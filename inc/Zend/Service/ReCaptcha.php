@@ -495,9 +495,8 @@ HTML;
      */
     public function verify($challengeField, $responseField)
     {
-        $rawResponse = $this->_post($challengeField, $responseField);
-        $response = new Zend_Service_ReCaptcha_Response(null, null, $rawResponse);
+        $response = $this->_post($challengeField, $responseField);
 
-        return $response->isValid();
+        return new Zend_Service_ReCaptcha_Response(null, null, $response);
     }
 }
