@@ -87,6 +87,12 @@ class mailer
         $this->emailBody = $filterTags->filter($body);
     }
     
+    public function appendToBody($string)
+    {
+        $filterTags = new Zend_Filter_StripTags();
+        $this->emailBody .= $filterTags->filter($string) . '<br />';
+    }
+    
     public function setReplyTo($replyTo)
     {
         $emailValidator = new Zend_Validate_EmailAddress(array('mx' => true, 'deep' => true));
