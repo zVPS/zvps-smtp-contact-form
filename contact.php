@@ -13,7 +13,7 @@ $postRecaptchResponse = filter_input(INPUT_POST, 'recaptcha_response_field', FIL
 /** contact form was submitted, try to send the email */
 if (isset($postSubmit)) {
     
-    if($recaptchService->verify($postRecaptchChallenge, $postRecaptchResponse)) {
+    if($recaptchService->verify($postRecaptchChallenge, $postRecaptchResponse)->isValid()) {
         
         $mailer->setFromName(filter_input(INPUT_POST, 'name', FILTER_DEFAULT));
         $mailer->setReplyTo(filter_input(INPUT_POST, 'email', FILTER_DEFAULT));
