@@ -56,6 +56,10 @@ class mailer
             self::CONFIG_SSL  => $this->emailConfigSsl,
         );
         
+        if($this->emailConfigSsl) {
+            $config[self::CONFIG_SSL] = $this->emailConfigSsl;
+        }
+        
         $this->smtpTransport = new Zend_Mail_Transport_Smtp($this->emailConfigHost, $config);
         $this->smtpMail = new Zend_Mail();
     }
