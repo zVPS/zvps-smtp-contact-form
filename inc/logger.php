@@ -7,7 +7,7 @@
 class logger
 {
     
-    private static $messages = array('error' => array(), array('success' => array()));
+    private static $messages = array('error' => array(), 'success' => array());
     
     public static function addError($message)
     {
