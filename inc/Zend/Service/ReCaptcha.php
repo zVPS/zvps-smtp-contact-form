@@ -41,25 +41,18 @@ require_once 'Zend/Service/ReCaptcha/Response.php';
 class Zend_Service_ReCaptcha extends Zend_Service_Abstract
 {
     /**
-     * URI to the regular API
-     *
-     * @var string
-     */
-    const API_SERVER = 'http://www.google.com/recaptcha/api';
-
-    /**
      * URI to the secure API
      *
      * @var string
      */
-    const API_SECURE_SERVER = 'https://www.google.com/recaptcha/api';
+    const API_SERVER = 'https://www.google.com/recaptcha/api';
 
     /**
      * URI to the verify server
      *
      * @var string
      */
-    const VERIFY_SERVER = 'http://www.google.com/recaptcha/api/verify';
+    const VERIFY_SERVER = 'https://www.google.com/recaptcha/api/siteverify';
 
     /**
      * Public key used when displaying the captcha
@@ -88,24 +81,34 @@ class Zend_Service_ReCaptcha extends Zend_Service_Abstract
      * @var array
      */
     protected $_params = array(
-        'ssl' => false, /* Use SSL or not when generating the recaptcha */
-        'error' => null, /* The error message to display in the recaptcha */
-        'xhtml' => false /* Enable XHTML output (this will not be XHTML Strict
-                            compliant since the IFRAME is necessary when
-                            Javascript is disabled) */
+        //Optional. The name of your callback function to be executed once all the dependencies have loaded.
+        'onload' => null, //your-function-here
+        //Optional. Whether to render the widget explicitly. Defaults to onload, which will render the widget in the first g-recaptcha tag it finds.
+        'render' => null, //onload|explicit
+        //See language codes	Optional. Forces the widget to render in a specific language. Auto-detects the user's language if unspecified.
+        'hl' => null,
     );
 
     /**
      * Options for tailoring reCaptcha
      *
-     * See the different options on http://recaptcha.net/apidocs/captcha/client.html
+     * See the different options on https://developers.google.com/recaptcha/docs/display
      *
      * @var array
      */
     protected $_options = array(
-        'theme'               => 'red',
-        'lang'                => 'en',
-        'custom_translations' => array(),
+        //Optional. The color theme of the widget.
+        'data-theme'            => 'light', //dark|light
+        //Optional. The size of the widget.
+        'data-size'             => 'normal', //compact|normal 
+        //Optional. The tabindex of the widget and challenge. If other elements in your page use tabindex, it should be set to make user navigation easier.
+        'data-tabindex'         => 0,
+        //Optional. The name of your callback function, executed when the user submits a successful response. The g-recaptcha-response token is passed to your callback.
+        'data-callback'         => array(),
+        //Optional. The name of your callback function, executed when the reCAPTCHA response expires and the user needs to re-verify.
+        'data-expired-callback' => array(),
+        //Optional. The name of your callback function, executed when reCAPTCHA encounters an error (usually network connectivity) and cannot continue until connectivity is restored. If you specify a function here, you are responsible for informing the user that they should retry.
+        'data-error-callback'   => array(),
     );
 
     /**
@@ -125,8 +128,7 @@ class Zend_Service_ReCaptcha extends Zend_Service_Abstract
      * @param string $ip
      * @param array|Zend_Config $params
      */
-    public function __construct($publicKey = null, $privateKey = null,
-                                $params = null, $options = null, $ip = null)
+    public function __construct($publicKey = null, $privateKey = null, $params = null, $options = null, $ip = null)
     {
         if ($publicKey !== null) {
             $this->setPublicKey($publicKey);
@@ -393,55 +395,29 @@ class Zend_Service_ReCaptcha extends Zend_Service_Abstract
             $host = self::API_SECURE_SERVER;
         }
 
-        $htmlBreak = '<br>';
-        $htmlInputClosing = '>';
-
-        if ((bool) $this->_params['xhtml'] === true) {
-            $htmlBreak = '<br />';
-            $htmlInputClosing = '/>';
-        }
-
-        $errorPart = '';
-
-        if (!empty($this->_params['error'])) {
-            $errorPart = '&error=' . urlencode($this->_params['error']);
-        }
-
-        $reCaptchaOptions = '';
+        $paramsEncoded = '';
 
         if (!empty($this->_options)) {
-            $encoded = Zend_Json::encode($this->_options);
-            $reCaptchaOptions = <<<SCRIPT
-<script type="text/javascript">
-    var RecaptchaOptions = {$encoded};
-</script>
+            $paramsEncoded = http_build_query($this->_params);
+        }
+
+        /** @todo finish adding options to the new html div via the options array */
+        $optionsEncoded = '';
+
+        if (!empty($this->_options)) {
+            $optionsEncoded = Zend_Json::encode($this->_options);
+        }
+        
+        $script = <<<SCRIPT
+<script src="https://www.google.com/recaptcha/api.js?{$paramsEncoded}" async defer></script>
 SCRIPT;
-        }
-        $challengeField = 'recaptcha_challenge_field';
-        $responseField  = 'recaptcha_response_field';
-        if (!empty($name)) {
-            $challengeField = $name . '[' . $challengeField . ']';
-            $responseField  = $name . '[' . $responseField . ']';
-        }
+                
 
-        $return = $reCaptchaOptions;
-        $return .= <<<HTML
-<script type="text/javascript"
-   src="{$host}/challenge?k={$this->_publicKey}{$errorPart}">
-</script>
+        $html = <<<HTML
+<div class="g-recaptcha" data-sitekey="{$this->_publicKey}"></div>
 HTML;
-        $return .= <<<HTML
-<noscript>
-   <iframe src="{$host}/noscript?k={$this->_publicKey}{$errorPart}"
-       height="300" width="500" frameborder="0"></iframe>{$htmlBreak}
-   <textarea name="{$challengeField}" rows="3" cols="40">
-   </textarea>
-   <input type="hidden" name="{$responseField}"
-       value="manual_challenge"{$htmlInputClosing}
-</noscript>
-HTML;
-
-        return $return;
+            
+        return $script . $html;
     }
 
     /**
