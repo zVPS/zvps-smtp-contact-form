@@ -6,23 +6,20 @@ require_once 'inc/mailer.php';
 $mailer = new mailer();
 $recaptchService = new Zend_Service_ReCaptcha($mailer->recaptchPublicKey, $mailer->recaptchPrivateKey);
 $postSubmit = filter_input(INPUT_POST, 'submit', FILTER_DEFAULT);
-$postRecaptchChallenge = filter_input(INPUT_POST, 'recaptcha_challenge_field', FILTER_DEFAULT);
-$postRecaptchResponse = filter_input(INPUT_POST, 'recaptcha_response_field', FILTER_DEFAULT);
+$postRecaptchResponse = filter_input(INPUT_POST, 'g-recaptcha-response', FILTER_DEFAULT);
 
 /** contact form was submitted, try to send the email */
 if (isset($postSubmit)) {
-    
-    if($recaptchService->verify($postRecaptchChallenge, $postRecaptchResponse)->isValid()) {
-        
+
+    if($recaptchService->verify($postRecaptchResponse)->isValid()) {
         $mailer->setFromName(filter_input(INPUT_POST, 'name', FILTER_DEFAULT));
         $mailer->setReplyTo(filter_input(INPUT_POST, 'email', FILTER_DEFAULT));
         $mailer->setSubject(filter_input(INPUT_POST, 'submit', FILTER_DEFAULT));
         $mailer->setBody(filter_input(INPUT_POST, 'message', FILTER_DEFAULT));
         $sendStatus = $mailer->send();  
-        
     } else {
         logger::addError('Please try re-entering the Recaptch.');
-    } 
+    }
 }
 ?>
 
