@@ -391,10 +391,6 @@ class Zend_Service_ReCaptcha extends Zend_Service_Abstract
 
         $host = self::API_SERVER;
 
-        if ((bool) $this->_params['ssl'] === true) {
-            $host = self::API_SECURE_SERVER;
-        }
-
         $paramsEncoded = '';
 
         if (!empty($this->_options)) {
@@ -409,7 +405,7 @@ class Zend_Service_ReCaptcha extends Zend_Service_Abstract
         }
         
         $script = <<<SCRIPT
-<script src="https://www.google.com/recaptcha/api.js?{$paramsEncoded}" async defer></script>
+<script src="{$host}.js?{$paramsEncoded}" async defer></script>
 SCRIPT;
                 
 
@@ -428,7 +424,7 @@ HTML;
      * @return Zend_Http_Response
      * @throws Zend_Service_ReCaptcha_Exception
      */
-    protected function _post($challengeField, $responseField)
+    protected function _post($responseField)
     {
         if ($this->_privateKey === null) {
             /** @see Zend_Service_ReCaptcha_Exception */
@@ -448,10 +444,11 @@ HTML;
         $httpClient = self::getHttpClient();
         $httpClient->resetParameters(true);
 
-        $postParams = array('privatekey' => $this->_privateKey,
-                            'remoteip'   => $this->_ip,
-                            'challenge'  => $challengeField,
-                            'response'   => $responseField);
+        $postParams = array(
+            'secret' => $this->_privateKey,
+            'remoteip'   => $this->_ip,
+            'response'   => $responseField
+        );
 
         /* Make the POST and return the response */
         return $httpClient->setUri(self::VERIFY_SERVER)
@@ -469,9 +466,9 @@ HTML;
      * @param string $responseField
      * @return Zend_Service_ReCaptcha_Response
      */
-    public function verify($challengeField, $responseField)
+    public function verify($responseField)
     {
-        $response = $this->_post($challengeField, $responseField);
+        $response = $this->_post($responseField);
 
         return new Zend_Service_ReCaptcha_Response(null, null, $response);
     }
