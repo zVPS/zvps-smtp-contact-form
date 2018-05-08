@@ -134,6 +134,7 @@ class Zend_Service_ReCaptcha_Response
 
     /**
      * Populate this instance based on a Zend_Http_Response object
+     * @todo check error codes -> might be a sub array/objects
      *
      * @param Zend_Http_Response $response
      * @return Zend_Service_ReCaptcha_Response
@@ -141,19 +142,18 @@ class Zend_Service_ReCaptcha_Response
     public function setFromHttpResponse(Zend_Http_Response $response)
     {
         $body = $response->getBody();
+        $responseObject = Zend_Json::decode($body, Zend_Json::TYPE_OBJECT);
 
         // Default status and error code
         $status = 'false';
         $errorCode = '';
 
-        $parts = explode("\n", $body);
-
-        if ($parts[0] === 'true') {
+        if (is_object($responseObject) === true && $responseObject->success === true) {
             $status = 'true';
         }
 
-        if (!empty($parts[1])) {
-            $errorCode = $parts[1];
+        if (!empty($responseObject->{'error-codes'}[0])) {
+            $errorCode = $responseObject->{'error-codes'}[0];
         }
 
         $this->setStatus($status);
