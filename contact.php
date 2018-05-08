@@ -5,7 +5,6 @@ require_once 'inc/mailer.php';
 /** setup mailer and captcha services */
 $mailer = new mailer();
 $recaptchService = new Zend_Service_ReCaptcha($mailer->recaptchPublicKey, $mailer->recaptchPrivateKey);
-$recaptchService->setParam('ssl', $mailer->recaptchSiteSsl);
 $postSubmit = filter_input(INPUT_POST, 'submit', FILTER_DEFAULT);
 $postRecaptchChallenge = filter_input(INPUT_POST, 'recaptcha_challenge_field', FILTER_DEFAULT);
 $postRecaptchResponse = filter_input(INPUT_POST, 'recaptcha_response_field', FILTER_DEFAULT);
