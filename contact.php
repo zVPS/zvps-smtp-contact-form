@@ -16,7 +16,7 @@ if (isset($postSubmit)) {
         $mailer->setReplyTo(filter_input(INPUT_POST, 'email', FILTER_DEFAULT));
         $mailer->setSubject(filter_input(INPUT_POST, 'submit', FILTER_DEFAULT));
         $mailer->setBody(filter_input(INPUT_POST, 'message', FILTER_DEFAULT));
-        $sendStatus = $mailer->send();  
+        $sendStatus = $mailer->send();
     } else {
         logger::addError('Please try re-entering the Recaptch.');
     }
