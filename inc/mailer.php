@@ -101,7 +101,7 @@ class mailer
     public function appendToBody($string)
     {
         $filterTags = new Zend_Filter_StripTags();
-        $this->emailBody .= $filterTags->filter($string) . '<br />';
+        $this->emailBody .= $filterTags->filter($string) . "\n";
     }
 
     public function setReplyTo($replyTo)
